@@ -271,6 +271,26 @@ tests = ["attrs[tests-no-zope]", "zope.interface"]
 tests-no-zope = ["cloudpickle", "cloudpickle", "hypothesis", "hypothesis", "mypy (>=0.971,<0.990)", "mypy (>=0.971,<0.990)", "pympler", "pympler", "pytest (>=4.3.0)", "pytest (>=4.3.0)", "pytest-mypy-plugins", "pytest-mypy-plugins", "pytest-xdist[psutil]", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "audiomentations"
+version = "0.28.0"
+description = "A Python library for audio data augmentation. Inspired by albumentations. Useful for machine learning."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "audiomentations-0.28.0-py3-none-any.whl", hash = "sha256:bf24de9dcbde9d533aba814874a0297799e808de9c1466cd0da8e1db997cb822"},
+    {file = "audiomentations-0.28.0.tar.gz", hash = "sha256:9475efd47f1279bd3b93a8b7e7d6de5001b5e1356910d1dc22d5b2ff9b52beab"},
+]
+
+[package.dependencies]
+librosa = ">0.7.2,<0.10.0"
+numpy = ">=1.13.0"
+scipy = ">=1.0.0,<2"
+
+[package.extras]
+extras = ["cylimiter (==0.3.0)", "lameenc (>=1.2.0,<2)", "pydub (>=0.22.0,<1)", "pyloudnorm (>=0.1.0)", "pyroomacoustics (>=0.6.0)"]
+
+[[package]]
 name = "audioread"
 version = "3.0.0"
 description = "multi-library, cross-platform audio decoding"
@@ -5370,4 +5390,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "57ef8820665baa7c5ccb6eeaa1b4ba6a08137a478261ff96c221d3222bef2fe5"
+content-hash = "bdc88a0b5377e866f7155740c32344e3b030c7d5beba41536550b64e0486f5c1"

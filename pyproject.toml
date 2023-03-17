@@ -32,6 +32,7 @@ onnxruntime = "^1.14.0"
 flask = "^2.2.3"
 flask-cors = "^3.0.10"
 fairseq = "^0.12.2"
+audiomentations = "^0.28.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.11.4"
