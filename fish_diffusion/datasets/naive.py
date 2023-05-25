@@ -189,6 +189,14 @@ class NaiveVOCODERDataset(NaiveDataset):
             )
             max_amplitude = np.max(np.abs(y))
             y = y / (max_amplitude + 1e-8) * new_amplitude
+        
+        # Pad to the segment length
+        # This step is necessary to avoid memory leak in the training
+        if self.segment_length is not None and y.shape[-1] < self.segment_length:
+            left = np.random.randint(0, self.segment_length - y.shape[-1] + 1)
+            right = self.segment_length - y.shape[-1] - left
+            y = np.pad(y, (left, right), "constant")
+            pitches = np.pad(pitches, (left, right), "edge")
 
         return {
             "audio": y[None],
