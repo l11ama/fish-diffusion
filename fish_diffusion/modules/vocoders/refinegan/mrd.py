@@ -42,7 +42,7 @@ class DiscriminatorR(torch.nn.Module):
 
         for l in self.convs:
             x = l(x)
-            x = F.leaky_relu(x, self.leaky_relu_slope)
+            x = F.leaky_relu(x, self.leaky_relu_slope, inplace=True)
             fmap.append(x)
 
         x = self.conv_post(x)
@@ -51,6 +51,7 @@ class DiscriminatorR(torch.nn.Module):
 
         return x, fmap
 
+    @torch.autocast(device_type="cuda", enabled=False)
     def spectrogram(self, x):
         x = F.pad(
             x,
@@ -61,8 +62,9 @@ class DiscriminatorR(torch.nn.Module):
             mode="reflect",
         )
         x = x.squeeze(1)
+
         x = torch.stft(
-            x,
+            x.float(),
             n_fft=self.n_fft,
             hop_length=self.hop_length,
             win_length=self.win_length,

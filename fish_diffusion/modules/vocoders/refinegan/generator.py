@@ -63,9 +63,9 @@ class ResBlock(torch.nn.Module):
 
     def forward(self, x):
         for idx, (c1, c2) in enumerate(zip(self.convs1, self.convs2)):
-            xt = F.leaky_relu(x, self.leaky_relu_slope)
+            xt = F.leaky_relu(x, self.leaky_relu_slope, inplace=True)
             xt = c1(xt)
-            xt = F.leaky_relu(xt, self.leaky_relu_slope)
+            xt = F.leaky_relu(xt, self.leaky_relu_slope, inplace=True)
             xt = c2(xt)
 
             if idx != 0 or self.in_channels == self.out_channels:
@@ -449,7 +449,7 @@ class RefineGANGenerator(nn.Module):
         downs = []
 
         for block in self.downsample_blocks:
-            x = F.leaky_relu(x, self.leaky_relu_slope)
+            x = F.leaky_relu(x, self.leaky_relu_slope, inplace=True)
             downs.append(x)
             x = block(x)
 
@@ -462,7 +462,7 @@ class RefineGANGenerator(nn.Module):
                 reversed(downs),
             )
         ):
-            x = F.leaky_relu(x, self.leaky_relu_slope)
+            x = F.leaky_relu(x, self.leaky_relu_slope, inplace=True)
             x = upsample_block(x)
 
             if idx == 0:
@@ -471,7 +471,7 @@ class RefineGANGenerator(nn.Module):
             x = torch.cat([x, down], dim=1)
             x = conv_block(x)
 
-        x = F.leaky_relu(x, self.leaky_relu_slope)
+        x = F.leaky_relu(x, self.leaky_relu_slope, inplace=True)
         x = self.output_conv(x)
         x = torch.tanh(x)
 
