@@ -189,7 +189,7 @@ class NaiveVOCODERDataset(NaiveDataset):
             )
             max_amplitude = np.max(np.abs(y))
             y = y / (max_amplitude + 1e-8) * new_amplitude
-        
+
         # Pad to the segment length
         # This step is necessary to avoid memory leak in the training
         if self.segment_length is not None and y.shape[-1] < self.segment_length:
