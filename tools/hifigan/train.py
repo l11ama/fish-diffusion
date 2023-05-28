@@ -116,7 +116,7 @@ class RefineGAN(pl.LightningModule):
     def generator_continuous_loss(self, y, y_hat):
         def extract_envelope(signal, kernel_size=512, stride=256):
             signal = torch.abs(signal)
-            envelope = F.min_pool1d(signal, kernel_size=kernel_size, stride=stride)
+            envelope = F.max_pool1d(-signal, kernel_size=kernel_size, stride=stride)
             return envelope
 
         y_envelope = extract_envelope(y)
