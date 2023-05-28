@@ -101,19 +101,28 @@ class RefineGAN(pl.LightningModule):
         return sum(loss_mel) / len(loss_mel)
 
     def generator_envelope_loss(self, y, y_hat):
-        def extract_envelope(signal, kernel_size=100, stride=50):
+        def extract_envelope(signal, kernel_size=512, stride=256):
+            signal = torch.abs(signal)
             envelope = F.max_pool1d(signal, kernel_size=kernel_size, stride=stride)
             return envelope
 
         y_envelope = extract_envelope(y)
         y_hat_envelope = extract_envelope(y_hat)
 
-        y_reverse_envelope = extract_envelope(-y)
-        y_hat_reverse_envelope = extract_envelope(-y_hat)
+        loss_envelope = F.mse_loss(y_envelope, y_hat_envelope)
 
-        loss_envelope = F.l1_loss(y_envelope, y_hat_envelope) + F.l1_loss(
-            y_reverse_envelope, y_hat_reverse_envelope
-        )
+        return loss_envelope
+
+    def generator_continuous_loss(self, y, y_hat):
+        def extract_envelope(signal, kernel_size=512, stride=256):
+            signal = torch.abs(signal)
+            envelope = F.min_pool1d(signal, kernel_size=kernel_size, stride=stride)
+            return envelope
+
+        y_envelope = extract_envelope(y)
+        y_hat_envelope = extract_envelope(y_hat)
+
+        loss_envelope = F.mse_loss(y_envelope, y_hat_envelope)
 
         return loss_envelope
 
@@ -203,6 +212,16 @@ class RefineGAN(pl.LightningModule):
             sync_dist=True,
         )
 
+        # L2 Continuous Loss
+        loss_continuous = self.generator_continuous_loss(y, y_g_hat)
+        self.log(
+            "train_loss_g_continuous",
+            loss_continuous,
+            on_step=True,
+            prog_bar=False,
+            sync_dist=True,
+        )
+
         # MPD Loss
         y_g_hat_x, _ = self.mpd(y_g_hat)
         loss_mpd = self.generator_adv_loss(y_g_hat_x)
@@ -218,7 +237,13 @@ class RefineGAN(pl.LightningModule):
         )
 
         # Generator Loss
-        loss_g = 45 * loss_mel + loss_envelope + loss_mpd + loss_mrd
+        loss_g = (
+            45 * loss_mel
+            + 5 * loss_envelope
+            + 5 * loss_continuous
+            + loss_mpd
+            + loss_mrd
+        )
         self.log("train_loss_g", loss_g, on_step=True, prog_bar=True, sync_dist=True)
 
         self.manual_backward(loss_g)

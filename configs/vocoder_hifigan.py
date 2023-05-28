@@ -10,20 +10,24 @@ num_mels = 128
 n_fft = 2048
 hop_length = 512
 win_length = 2048
-grad_acc_steps = 5  # Simulate 2*10=20 batch size
+grad_acc_steps = 1  # Simulate 2*10=20 batch size
 
 trainer = dict(
     accelerator="gpu",
     devices=-1,
     max_epochs=-1,
-    precision="16-mixed",
+    precision="32",
     val_check_interval=5000,
     check_val_every_n_epoch=None,
     callbacks=[
         ModelCheckpoint(
             filename="{epoch}-{step}-{valid_loss:.4f}",
             save_on_train_epoch_end=False,
-            save_top_k=-1,
+            monitor="step",
+            mode="max",
+            every_n_epochs=None,
+            every_n_train_steps=5000,
+            save_top_k=10,
         ),
         LearningRateMonitor(logging_interval="step"),
     ],
@@ -63,7 +67,7 @@ model = dict(
 dataset = dict(
     train=dict(
         type="NaiveVOCODERDataset",
-        path="/mnt/nvme1/vocoder-dataset/train",
+        path="./dataset/vocoder-dataset/train",
         segment_size=327680,
         pitch_shift=[-12, 12],
         loudness_shift=[0.1, 0.9],
@@ -72,7 +76,7 @@ dataset = dict(
     ),
     valid=dict(
         type="NaiveVOCODERDataset",
-        path="/mnt/nvme1/vocoder-dataset/valid",
+        path="./dataset/vocoder-dataset/valid",
         segment_size=None,
         pitch_shift=None,
         loudness_shift=None,
