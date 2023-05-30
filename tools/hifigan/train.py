@@ -109,7 +109,7 @@ class RefineGAN(pl.LightningModule):
         y_envelope = extract_envelope(y)
         y_hat_envelope = extract_envelope(y_hat)
 
-        loss_envelope = F.mse_loss(y_envelope, y_hat_envelope)
+        loss_envelope = F.l1_loss(y_envelope, y_hat_envelope)
 
         return loss_envelope
 
@@ -122,7 +122,7 @@ class RefineGAN(pl.LightningModule):
         y_envelope = extract_envelope(y)
         y_hat_envelope = extract_envelope(y_hat)
 
-        loss_envelope = F.mse_loss(y_envelope, y_hat_envelope)
+        loss_envelope = F.l1_loss(y_envelope, y_hat_envelope)
 
         return loss_envelope
 
@@ -203,7 +203,7 @@ class RefineGAN(pl.LightningModule):
         )
 
         # L1 Envelope Loss
-        loss_envelope = self.generator_envelope_loss(y, y_g_hat)
+        loss_envelope = self.generator_envelope_loss(y, y_g_hat) * 10
         self.log(
             "train_loss_g_envelope",
             loss_envelope,
@@ -212,8 +212,8 @@ class RefineGAN(pl.LightningModule):
             sync_dist=True,
         )
 
-        # L2 Continuous Loss
-        loss_continuous = self.generator_continuous_loss(y, y_g_hat)
+        # L1 Continuous Loss
+        loss_continuous = self.generator_continuous_loss(y, y_g_hat) * 1000
         self.log(
             "train_loss_g_continuous",
             loss_continuous,
@@ -239,8 +239,8 @@ class RefineGAN(pl.LightningModule):
         # Generator Loss
         loss_g = (
             45 * loss_mel
-            + 5 * loss_envelope
-            + 5 * loss_continuous
+            + loss_envelope
+            + loss_continuous
             + loss_mpd
             + loss_mrd
         )
